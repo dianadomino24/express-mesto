@@ -9,6 +9,7 @@
     "lint": "eslint ."
   },
   "homepage": "/",
+  "main": "app.js",
   "keywords": [
     "node.js",
     "express",

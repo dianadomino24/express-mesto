@@ -12,6 +12,7 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
+  // User.findOne({ _id: req.params.id })
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
@@ -19,7 +20,12 @@ const getUser = (req, res) => {
       }
       return res.status(200).send({ data: user });
     })
-    .catch((err) => res.status(500).send({ message: `Ошибка считывания файла пользователя: ${err}` }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+      }
+      return res.status(500).send({ message: `Ошибка считывания файла пользователя: ${err}` });
+    });
 };
 
 const createUser = (req, res) => {

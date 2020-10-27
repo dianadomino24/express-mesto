@@ -13,7 +13,6 @@ const getCards = (req, res) => {
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
-
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.status(200).send({ data: card }))
@@ -21,9 +20,19 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Ошибка при удалении карточки: ${err}` }));
+  Card.findByIdAndDelete(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(200).send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(500).send({ message: `Ошибка при удалении карточки: ${err}` });
+    });
 };
 
 const putLike = (req, res) => {
@@ -32,8 +41,18 @@ const putLike = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Ошибка при проставлении лайка: ${err}` }));
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(200).send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(500).send({ message: `Ошибка при проставлении лайка: ${err}` });
+    });
 };
 const deleteLike = (req, res) => {
   Card.findByIdAndUpdate(
@@ -41,8 +60,18 @@ const deleteLike = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Ошибка при удалении карточки: ${err}` }));
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(200).send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(500).send({ message: `Ошибка при удалении лайка: ${err}` });
+    });
 };
 
 module.exports = {
