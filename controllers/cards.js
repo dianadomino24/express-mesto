@@ -12,9 +12,10 @@ const getCards = (req, res) => {
 };
 
 const createCard = (req, res) => {
-  const { name, link } = req.body;
+  // const { name, link } = req.body;
   const owner = req.user._id;
-  Card.create({ name, link, owner })
+  // Card.create({ name, link, owner })
+  Card.create({ owner, ...req.body })
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => res.status(400).send({ message: `Ошибка при создании карточки: ${err}` }));
 };
