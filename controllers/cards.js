@@ -12,12 +12,15 @@ const getCards = (req, res) => {
 };
 
 const createCard = (req, res) => {
-  // const { name, link } = req.body;
   const owner = req.user._id;
-  // Card.create({ name, link, owner })
   Card.create({ owner, ...req.body })
     .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => res.status(400).send({ message: `Ошибка при создании карточки: ${err}` }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: `Ошибка валидации при создании карточки: ${err}` });
+      }
+      return res.status(500).send({ message: `Ошибка при создании карточки: ${err}` });
+    });
 };
 
 const deleteCard = (req, res) => {
